@@ -11,6 +11,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--model_name", required=True)
     parser.add_argument("--result_dir", default="results/")
+    parser.add_argument("--num_test", type=int, default=10)
     args = parser.parse_args()
     
     output_dir = os.path.join(args.result_dir, args.model_name, "outputs")    
@@ -22,7 +23,7 @@ if __name__ == "__main__":
     if not os.path.exists(os.path.join(output_dir, "images")):
         os.makedirs(os.path.join(output_dir, "images"))
 
-    for i, sample in enumerate(data[:10]):
+    for i, sample in enumerate(data[:args.num_test]):
         hist_size = len(sample["history"])
         gt_size = len(sample["ground_truth"])
         plt.figure()

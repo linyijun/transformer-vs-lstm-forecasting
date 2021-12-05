@@ -3,13 +3,13 @@
 #SBATCH --ntasks=1
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=lin00786@umn.edu
-#SBATCH -p amdlarge
+#SBATCH -p amd2tb
 
 module load python3
 
 source activate torch-env
 
-cd /home/yaoyi/lin00786/transformer-adding_periodic/
+cd /home/yaoyi/lin00786/transformer-vs-lstm-forecasting/
 
 python scripts/generate_time_series.py --data_path data/data_p7_20000.csv --num_samples 20000 --periods 7
 python scripts/preprocess_time_series.py --data_path data/data_p7_20000.csv --preprocess_data_path data/preprocess_data_p7_20000.csv --config_path data/config_p7_20000.json

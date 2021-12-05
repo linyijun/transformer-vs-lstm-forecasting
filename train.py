@@ -24,7 +24,7 @@ def train(
     model_name: str,
     log_dir: str,
     model_dir: str,
-    use_auxiliary: bool,
+    auxiliary_feat: list,
     use_periodic_encoder: bool,
     use_periodic_as_feat: bool,
     seq_len: int = 120,
@@ -55,29 +55,27 @@ def train(
         groups=full_groups,
         grp_by=grp_by_train,
         split="train",
-        features=feature_target_names["features"],
+        features=auxiliary_feat,
         target=feature_target_names["target"],
         seq_len=seq_len,
         horizon=horizon,
-        use_auxiliary=use_auxiliary,
         use_periodic_as_feat=use_periodic_as_feat
     )
     val_data = Dataset(
         groups=full_groups,
         grp_by=grp_by_train,
         split="val",
-        features=feature_target_names["features"],
+        features=auxiliary_feat,
         target=feature_target_names["target"],
         seq_len=seq_len,
         horizon=horizon,
-        use_auxiliary=use_auxiliary, 
         use_periodic_as_feat=use_periodic_as_feat
     )
 
     print(f"len(train_data) - {len(train_data)}")
     print(f"len(val_data) - {len(val_data)}")
     
-    in_channels = len(feature_target_names["features"]) * use_auxiliary + use_periodic_as_feat + 1
+    in_channels = len(auxiliary_feat) + use_periodic_as_feat + 1
     assert in_channels == train_data[0][0].size(1) - 1 == val_data[0][0].size(1) - 1
     print(f"len(in_channels) - {in_channels}")
 
@@ -130,7 +128,7 @@ def train(
         monitor="valid_loss",
         mode="min",
         dirpath=model_dir,
-        filename='{epoch}-{val_loss:.2f}',
+        filename='{epoch}-{val_loss:.5f}',
     )
     
     earlystop_callback = EarlyStopping(
@@ -144,7 +142,7 @@ def train(
     trainer = pl.Trainer(
         max_epochs=epochs,
         gpus=device,
-        progress_bar_refresh_rate=0.5,
+        progress_bar_refresh_rate=0.2,
         logger=[tensorboard_logger, csv_logger],
         callbacks=[checkpoint_callback, earlystop_callback],
     )
@@ -182,7 +180,7 @@ if __name__ == "__main__":
     parser.add_argument("--feature_target_names_path", default="data/")
     parser.add_argument("--result_dir", default="results/")
     
-    parser.add_argument("--use_auxiliary", action="store_true", help="Default: False")
+    parser.add_argument("--auxiliary_feat", type=str, default="", help="Default: not using auxiliary features")
     parser.add_argument("--use_periodic_encoder", action="store_true", help="Default: False")
     parser.add_argument("--use_periodic_as_feat", action="store_true", help="Default: False")
         
@@ -196,17 +194,25 @@ if __name__ == "__main__":
     for arg in vars(args):
         print(f'{arg} - {getattr(args, arg)}')
 
+    auxiliary_feat = ["day_of_week", "day_of_month", "day_of_year", "month", "week_of_year", "year"]
+    auxiliary_feat = [auxiliary_feat[int(i)] for i in list(args.auxiliary_feat)]
+    print(f'auxiliary_feat - {auxiliary_feat}')
+        
     if args.model_name == "lstm":   
         assert args.use_periodic_encoder == False , "cannot use periodic encoder in LSTM"
     
     model_name = "{}_aux{}_penc{}_pfeat{}_{}_{}".format(
         args.model_name, 
-        1 if args.use_auxiliary else 0,
+        args.auxiliary_feat,
         1 if args.use_periodic_encoder else 0,
         1 if args.use_periodic_as_feat else 0,    
         args.data_name,
-        int(time.time())
-    )
+        int(time.time()))
+    print(f'model_name - {model_name}')
+        
+    
+    import sys
+    sys.exit(0)
     
     data_csv_path = os.path.join(args.data_csv_path, f"preprocess_data_{args.data_name}.csv")
     feature_target_names_path = os.path.join(args.feature_target_names_path, f"config_{args.data_name}.json")
@@ -235,7 +241,7 @@ if __name__ == "__main__":
         model_name=args.model_name,
         log_dir=log_dir,
         model_dir=model_dir,
-        use_auxiliary=args.use_auxiliary,
+        auxiliary_feat=auxiliary_feat,
         use_periodic_encoder=args.use_periodic_encoder,
         use_periodic_as_feat=args.use_periodic_as_feat,
         seq_len=args.seq_len,

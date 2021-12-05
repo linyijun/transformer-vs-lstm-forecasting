@@ -16,13 +16,14 @@ def add_date_cols(dataframe: pd.DataFrame, date_col: str = "timestamp"):
 
     dataframe[date_col] = pd.to_datetime(dataframe[date_col], format="%Y-%m-%d")
 
+    dataframe["day_of_week"] = dataframe[date_col].dt.weekday / 7
     dataframe["day_of_month"] = dataframe[date_col].dt.day / 31
     dataframe["day_of_year"] = dataframe[date_col].dt.dayofyear / 365
     dataframe["month"] = dataframe[date_col].dt.month / 12
     dataframe["week_of_year"] = dataframe[date_col].dt.isocalendar().week / 53
     dataframe["year"] = (dataframe[date_col].dt.year - 2015) / 5
 
-    return dataframe, ["day_of_month", "day_of_year", "month", "week_of_year", "year"]
+    return dataframe, ["day_of_week", "day_of_month", "day_of_year", "month", "week_of_year", "year"]
 
 
 def add_basic_lag_features(
