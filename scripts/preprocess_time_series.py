@@ -22,7 +22,14 @@ def add_date_cols(dataframe: pd.DataFrame, date_col: str = "timestamp"):
     dataframe["month"] = dataframe[date_col].dt.month / 12
     dataframe["week_of_year"] = dataframe[date_col].dt.isocalendar().week / 53
     dataframe["year"] = (dataframe[date_col].dt.year - 2015) / 5
-
+    
+    dataframe["day_of_week"] = dataframe["day_of_week"].astype(np.float32)
+    dataframe["day_of_month"] = dataframe["day_of_month"].astype(np.float32)
+    dataframe["day_of_year"] = dataframe["day_of_year"].astype(np.float32)
+    dataframe["month"] = dataframe["month"].astype(np.float32)
+    dataframe["week_of_year"] = dataframe["week_of_year"].astype(np.float32)
+    dataframe["year"] = dataframe["year"].astype(np.float32)
+    
     return dataframe, ["day_of_week", "day_of_month", "day_of_year", "month", "week_of_year", "year"]
 
 

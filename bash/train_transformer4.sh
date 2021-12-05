@@ -10,8 +10,10 @@ module load python3
 
 source activate torch-env
 
-cd /home/yaoyi/lin00786/transformer-adding-periodic/
+cd /home/yaoyi/lin00786/transformer-vs-lstm-forecasting/
 
-python train.py --model_name transformer --data_name p10_5000  --batch_size 64 --use_periodic_encoder --use_periodic_as_feat
-python train.py --model_name transformer --data_name p10_5000  --batch_size 64 --use_auxiliary --use_periodic_encoder
-python train.py --model_name transformer --data_name p10_5000  --batch_size 64 --use_auxiliary --use_periodic_as_feat
+# auxiliary_feat = ["day_of_week", "day_of_month", "day_of_year", "month", "week_of_year", "year"]
+
+python train.py --model_name transformer --data_name p71428_10000
+python train.py --model_name transformer --data_name p71428_10000 --auxiliary_feat 35
+python train.py --model_name transformer --data_name p71428_10000 --auxiliary_feat 012345

@@ -73,25 +73,24 @@ class Dataset(torch.utils.data.Dataset):
         self.seq_len = seq_len
         self.horizon = horizon
         self.use_periodic_as_feat = use_periodic_as_feat
+        if use_periodic_as_feat:
+            self.features += ['norm_period'] 
 
     def __len__(self):
         return len(self.groups)
 
     def __getitem__(self, idx):
+        
         group = self.groups[idx]
 
         df = self.grp_by.get_group(group)
 
         src, trg = split_df(df, split=self.split, history_size=self.seq_len, horizon_size=self.horizon)
-
-        selected_features = self.features
-        if self.use_periodic_as_feat:
-            selected_features += ['norm_period'] 
-        
-        src = src[[self.target] + selected_features + ['period']]
+       
+        src = src[[self.target] + self.features + ['period']]
         src = df_to_np(src)
 
-        trg_in = trg[[self.target_lag_1] + selected_features + ['period']]
+        trg_in = trg[[self.target_lag_1] + self.features + ['period']]
         trg_in = np.array(trg_in)
         
         trg_out = np.array(trg[self.target])

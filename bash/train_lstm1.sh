@@ -14,7 +14,6 @@ cd /home/yaoyi/lin00786/transformer-vs-lstm-forecasting/
 
 # auxiliary_feat = ["day_of_week", "day_of_month", "day_of_year", "month", "week_of_year", "year"]
 
-python train.py --model_name lstm --data_name p7_20000 --use_periodic_as_feat
-python train.py --model_name lstm --data_name p7_20000 --auxiliary_feat 35 --use_periodic_as_feat
-python train.py --model_name lstm --data_name p7_20000 --auxiliary_feat 012345 --use_periodic_as_feat
-
+python train.py --model_name lstm --data_name p7_10000 --use_periodic_as_feat
+python train.py --model_name lstm --data_name p7_10000 --auxiliary_feat 35 --use_periodic_as_feat
+python train.py --model_name lstm --data_name p7_10000 --auxiliary_feat 012345 --use_periodic_as_feat

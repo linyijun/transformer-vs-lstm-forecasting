@@ -45,7 +45,7 @@ class TransformerForecasting(pl.LightningModule):
         self.input_pos_embedding = torch.nn.Embedding(1024, embedding_dim=h_channels)
         self.target_pos_embedding = torch.nn.Embedding(1024, embedding_dim=h_channels)
         
-        self.periodic_embedding = torch.nn.Embedding(32, embedding_dim=h_channels)
+        self.periodic_embedding = torch.nn.Embedding(64, embedding_dim=h_channels)
 
         encoder_layer = nn.TransformerEncoderLayer(
             d_model=h_channels,

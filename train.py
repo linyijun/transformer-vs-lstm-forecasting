@@ -3,6 +3,7 @@ import sys
 import json
 import random
 import time
+import copy
 
 import numpy as np
 import pandas as pd
@@ -51,30 +52,29 @@ def train(
         grp for grp in groups if grp_by_train.get_group(grp).shape[0] > 2 * horizon
     ]
 
+    print(auxiliary_feat)
     train_data = Dataset(
         groups=full_groups,
         grp_by=grp_by_train,
         split="train",
-        features=auxiliary_feat,
-        target=feature_target_names["target"],
-        seq_len=seq_len,
-        horizon=horizon,
-        use_periodic_as_feat=use_periodic_as_feat
-    )
-    val_data = Dataset(
-        groups=full_groups,
-        grp_by=grp_by_train,
-        split="val",
-        features=auxiliary_feat,
+        features=copy.copy(auxiliary_feat),
         target=feature_target_names["target"],
         seq_len=seq_len,
         horizon=horizon,
         use_periodic_as_feat=use_periodic_as_feat
     )
 
-    print(f"len(train_data) - {len(train_data)}")
-    print(f"len(val_data) - {len(val_data)}")
-    
+    val_data = Dataset(
+        groups=full_groups,
+        grp_by=grp_by_train,
+        split="val",
+        features=copy.copy(auxiliary_feat),
+        target=feature_target_names["target"],
+        seq_len=seq_len,
+        horizon=horizon,
+        use_periodic_as_feat=use_periodic_as_feat
+    )
+
     in_channels = len(auxiliary_feat) + use_periodic_as_feat + 1
     assert in_channels == train_data[0][0].size(1) - 1 == val_data[0][0].size(1) - 1
     print(f"len(in_channels) - {in_channels}")
@@ -142,7 +142,7 @@ def train(
     trainer = pl.Trainer(
         max_epochs=epochs,
         gpus=device,
-        progress_bar_refresh_rate=0.2,
+        progress_bar_refresh_rate=0.5,
         logger=[tensorboard_logger, csv_logger],
         callbacks=[checkpoint_callback, earlystop_callback],
     )
@@ -210,10 +210,6 @@ if __name__ == "__main__":
         int(time.time()))
     print(f'model_name - {model_name}')
         
-    
-    import sys
-    sys.exit(0)
-    
     data_csv_path = os.path.join(args.data_csv_path, f"preprocess_data_{args.data_name}.csv")
     feature_target_names_path = os.path.join(args.feature_target_names_path, f"config_{args.data_name}.json")
     result_dir = os.path.join(args.result_dir, model_name)    
