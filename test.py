@@ -6,8 +6,10 @@ import pandas as pd
 import torch
 from sklearn.metrics import mean_absolute_error
 from tqdm import tqdm
-
+import copy
 import random
+import matplotlib.pyplot as plt
+
 from models.transformer import TransformerForecasting
 from models.lstm import LSTMForecasting
 from data_utils import split_df, Dataset
@@ -52,13 +54,25 @@ def test(
     seq_len: int = 120,
     horizon: int = 30,
     data_for_visualization_path: Optional[str] = None,
-    num_test: Optional[int] = 100
+    image_path: Optional[str] = None,
+    num_test: Optional[int] = 100,
+    gpu: int = 1
 ):
     
-    use_auxiliary = int(model_name[model_name.find('aux') + 3])
+    auxiliary_feat = ''
+    for i in range(model_name.find('aux') + 3, len(model_name)):
+        if model_name[i] != '_':
+            auxiliary_feat += model_name[i]
+        else:
+            break
+            
+    auxiliary_feats = ["day_of_week", "day_of_month", "day_of_year", "month", "week_of_year", "year"]            
+    auxiliary_feat = [auxiliary_feats[int(i)] for i in list(auxiliary_feat)]
+
     use_periodic_encoder = int(model_name[model_name.find('penc') + 4])
     use_periodic_as_feat = int(model_name[model_name.find('pfeat') + 5])
-    print("use_auxiliary - ", use_auxiliary)
+    print("data_csv_path - ", data_csv_path)
+    print("auxiliary_feat - ", auxiliary_feat)
     print("use_periodic_encoder - ", use_periodic_encoder)
     print("use_periodic_as_feat - ", use_periodic_as_feat)
     
@@ -80,15 +94,14 @@ def test(
         groups=full_groups,
         grp_by=grp_by_train,
         split="test",
-        features=feature_target_names["features"],
+        features=copy.copy(auxiliary_feat),
         target=feature_target_names["target"],
         seq_len=seq_len,
         horizon=horizon,
-        use_auxiliary=use_auxiliary,
         use_periodic_as_feat=use_periodic_as_feat        
     )
 
-    in_channels = len(feature_target_names["features"]) * use_auxiliary + use_periodic_as_feat + 1
+    in_channels = len(auxiliary_feat) + use_periodic_as_feat + 1
     assert in_channels == test_data[0][0].size(1) - 1
     print(f"len(in_channels) - {in_channels}")
     
@@ -109,7 +122,7 @@ def test(
     else:
         raise NotImplementedError
 
-    device = torch.device(f'cuda:0' if torch.cuda.is_available() else 'cpu')
+    device = torch.device(f'cuda:{gpu}' if torch.cuda.is_available() else 'cpu')
     model.load_state_dict(torch.load(model_path, map_location=device)["state_dict"], strict=False)
     
     model.eval()
@@ -131,7 +144,7 @@ def test(
         time_series_data = {"history": [], "ground_truth": [], "prediction": []}
 
         df = grp_by_train.get_group(group)
-        src, trg = split_df(df, split="val")
+        src, trg = split_df(df, split="test")
         
         time_series_data["history"] = src[target].tolist()[-seq_len:]
         time_series_data["ground_truth"] = trg[target].tolist()
@@ -144,7 +157,6 @@ def test(
         baseline_last_known_values += trg["last_known_value"].tolist()
 
         src, trg_in, _ = test_data[i]
-
         src, trg_in = src.unsqueeze(0), trg_in.unsqueeze(0)  # src/trg_in: [1, seq_len/horizon, channels]
 
         with torch.no_grad():
@@ -171,7 +183,7 @@ def test(
     }
     
     for k, v in eval_dict.items():
-        print(k, v)
+        print(k, round(v, 5))
 
     if test_json_path is not None:
         with open(test_json_path, "w") as f:
@@ -181,6 +193,25 @@ def test(
         with open(data_for_visualization_path, "w") as f:
             json.dump(data_for_visualization, f, indent=4)
 
+    # visualization            
+    if image_path is not None:
+        
+        for i, sample in enumerate(data_for_visualization[:50]):
+            
+            hist_size = len(sample["history"])
+            gt_size = len(sample["ground_truth"])
+            
+            plt.figure()
+            plt.plot(range(hist_size), sample["history"], label="History")
+            plt.plot(range(hist_size, hist_size + gt_size), sample["ground_truth"], label="Ground Truth")
+            plt.plot(range(hist_size, hist_size + gt_size), sample["prediction"], label="Prediction")
+
+            plt.xlabel("Time")
+            plt.ylabel("Time Series")
+            plt.legend()
+            plt.savefig(os.path.join(image_path, f"{i}.png"))
+            plt.close()
+        
     return eval_dict
 
 
@@ -197,6 +228,7 @@ if __name__ == "__main__":
     
     parser.add_argument("--seq_len", type=int, default=120)
     parser.add_argument("--horizon", type=int, default=30)    
+    parser.add_argument("--gpu", type=int, default=1)    
 
     args = parser.parse_args()
     
@@ -222,8 +254,11 @@ if __name__ == "__main__":
         os.makedirs(output_dir)
 
     test_json_path = os.path.join(output_dir, "test.json")
-    data_for_visualization_path = os.path.join(output_dir, "visualization.json")
-    
+    data_for_visualization_path = os.path.join(args.result_dir, args.model_name, "visualization.json")
+    image_path = os.path.join(output_dir, "images")
+    if not os.path.exists(image_path):
+        os.makedirs(image_path)
+        
     """ test """
     test(
         data_csv_path=data_csv_path,
@@ -234,5 +269,7 @@ if __name__ == "__main__":
         seq_len = args.seq_len,
         horizon = args.horizon,
         data_for_visualization_path=data_for_visualization_path,
+        image_path=image_path,
         num_test = args.num_test,
+        gpu=args.gpu,
     )

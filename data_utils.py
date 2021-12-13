@@ -54,7 +54,7 @@ def df_to_np(df):
 
 class Dataset(torch.utils.data.Dataset):
     def __init__(
-        self, 
+        self, data,
         groups, 
         grp_by, 
         split, 
@@ -64,6 +64,7 @@ class Dataset(torch.utils.data.Dataset):
         horizon=30,
         use_periodic_as_feat=True,
     ):
+        self.data = data
         self.groups = groups
         self.grp_by = grp_by
         self.split = split

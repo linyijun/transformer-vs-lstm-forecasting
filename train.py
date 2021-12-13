@@ -4,6 +4,7 @@ import json
 import random
 import time
 import copy
+import glob
 
 import numpy as np
 import pandas as pd
@@ -33,6 +34,7 @@ def train(
     batch_size: int = 64,
     epochs: int = 200,
     lr: float = 0.001,
+    gpu: int = 3,
 ):
     
     device = 1 if torch.cuda.is_available() else None
@@ -52,7 +54,6 @@ def train(
         grp for grp in groups if grp_by_train.get_group(grp).shape[0] > 2 * horizon
     ]
 
-    print(auxiliary_feat)
     train_data = Dataset(
         groups=full_groups,
         grp_by=grp_by_train,
@@ -141,7 +142,7 @@ def train(
 
     trainer = pl.Trainer(
         max_epochs=epochs,
-        gpus=device,
+        gpus=[gpu],
         progress_bar_refresh_rate=0.5,
         logger=[tensorboard_logger, csv_logger],
         callbacks=[checkpoint_callback, earlystop_callback],
@@ -189,6 +190,7 @@ if __name__ == "__main__":
     parser.add_argument("--batch_size", type=int, default=64)
     parser.add_argument("--epochs", type=int, default=600)
     parser.add_argument("--lr", type=float, default=1e-5)
+    parser.add_argument("--gpu", type=int, default=3)
     
     args = parser.parse_args()
     for arg in vars(args):
@@ -200,6 +202,19 @@ if __name__ == "__main__":
         
     if args.model_name == "lstm":   
         assert args.use_periodic_encoder == False , "cannot use periodic encoder in LSTM"
+    
+    """ checking if the setting has been trained """
+    fname = "{}_aux{}_penc{}_pfeat{}_{}_*".format(
+        args.model_name, 
+        args.auxiliary_feat,
+        1 if args.use_periodic_encoder else 0,
+        1 if args.use_periodic_as_feat else 0,    
+        args.data_name)
+    
+    fname = glob.glob(f"{args.result_dir}/{fname}")
+    if len(fname) > 0:
+        print(f'This setting has been trained for {len(fname)} time(s).')
+        sys.exit(0)
     
     model_name = "{}_aux{}_penc{}_pfeat{}_{}_{}".format(
         args.model_name, 
@@ -245,4 +260,5 @@ if __name__ == "__main__":
         batch_size=args.batch_size,
         epochs=args.epochs,
         lr=args.lr,
+        gpu=args.gpu,
     )

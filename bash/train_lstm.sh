@@ -10,7 +10,7 @@ module load python3
 
 source activate torch-env
 
-cd /home/yaoyi/lin00786/transformer-vs-lstm-forecasting/
+cd /data/yijun/transformer-vs-lstm-forecasting/
 
 # auxiliary_feat = ["day_of_week", "day_of_month", "day_of_year", "month", "week_of_year", "year"]
 
