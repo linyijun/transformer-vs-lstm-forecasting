@@ -48,7 +48,6 @@ As you can see, Transformer captures a more accurate prediction than LSTM.
 Model| Using Auxiliary Features | Using Periodic as Positional Encoding | MAE | SMAPE
 |------------- |------------- |------------- |------------- |------------- |
 |LSTM|1|0|0.29625|47.51880
-|-|-|-|-------|--------
 |Transformer|1|0|0.23089|37.93381
 |Transformer|1|1|0.19829|34.05033
 
