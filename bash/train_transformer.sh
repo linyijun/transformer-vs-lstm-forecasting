@@ -41,7 +41,6 @@ python train.py --model_name transformer --data_name p11_10000 --use_periodic_en
 python train.py --model_name transformer --data_name p71428_10000 --use_periodic_encoder --auxiliary_feat 012345 --gpu 2
 python train.py --model_name transformer --data_name p112337_10000 --use_periodic_encoder --auxiliary_feat 012345 --gpu 2
 
-
 python train.py --model_name transformer --data_name p7_10000 --use_periodic_as_feat --auxiliary_feat 35 --gpu 2
 python train.py --model_name transformer --data_name p11_10000 --use_periodic_as_feat --auxiliary_feat 35 --gpu 2
 python train.py --model_name transformer --data_name p71428_10000 --use_periodic_as_feat --auxiliary_feat 35 --gpu 2
@@ -51,7 +50,6 @@ python train.py --model_name transformer --data_name p7_10000 --use_periodic_as_
 python train.py --model_name transformer --data_name p11_10000 --use_periodic_as_feat --auxiliary_feat 012345 --gpu 2
 python train.py --model_name transformer --data_name p71428_10000 --use_periodic_as_feat --auxiliary_feat 012345 --gpu 2
 python train.py --model_name transformer --data_name p112337_10000 --use_periodic_as_feat --auxiliary_feat 012345 --gpu 2
-
 
 python train.py --model_name transformer --data_name p7_10000 --use_periodic_encoder --use_periodic_as_feat --gpu 2
 python train.py --model_name transformer --data_name p11_10000 --use_periodic_encoder --use_periodic_as_feat --gpu 2
