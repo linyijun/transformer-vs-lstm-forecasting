@@ -15,7 +15,7 @@ As you can see, Transformer captures a more accurate prediction than LSTM.
 | Tramsformer     | LSTM model
 |------------- | -------------
 |![1](res_readme/T_1.png)| ![2](res_readme/LSTM_1.png)
-|![3](res_readme/T_2.PNG)| ![4](res_readme/LSTM_2.png)
+|![3](res_readme/T_2.png)| ![4](res_readme/LSTM_2.png)
 
 
 ### Adding Periodic Positional Encoding:
