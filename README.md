@@ -5,7 +5,8 @@
 
 
 This repo is to compare Transformer and LSTM on time series forecasting
-The dataset is generated based on the resource: https://github.com/CVxTz/time_series_forecasting
+The dataset is generated based on the resource: https://github.com/CVxTz/time_series_forecasting.
+Sample data can be found [HERE](https://drive.google.com/drive/folders/1MfJ8tRGins8WN5pseKwyT4bIXhN1cYBI).
 
 ### Experiment 1: Transformer VS. LSTM Results:
 
