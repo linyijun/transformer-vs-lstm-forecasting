@@ -8,7 +8,7 @@ This repo is to compare Transformer and LSTM on time series forecasting
 Transformer Reference Link: https://github.com/CVxTz/time_series_forecasting
 
 
-###Transformer vs. LSTM Results:
+### Transformer vs. LSTM Results:
 
 As you can see, Transformer captures a more accurate prediction than LSTM.
 
@@ -32,8 +32,7 @@ As you can see, Transformer captures a more accurate prediction than LSTM.
 | Sign  | Description
 |------------- | -------------
 |AUX| Auxiliary Features
-|Penc| Periodic as Positional Encoding
-|Pfeat| Periodic as Extra Features|   
+|Penc| Periodic as Positional Encoding  
 ------------- | -----------------------------------------
 |0| Not using
 |1| Using
